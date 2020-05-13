@@ -1,0 +1,223 @@
+:source-highlighter: coderay
+:icons: font
+:experimental:
+:!sectnums:
+:imagesdir: ./images/
+:handout: ./handout/
+
+:logo: IT.PROG2 -
+ifdef::backend-html5[]
+:logo: image:PROG2-300x300.png[IT.PROG2,100,100,role=right,fit=none,position=top right]
+endif::[]
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= {logo} Praktikum Input / Output
+
+== Einleitung
+
+Ziele dieses Praktikums sind:
+
+* Sie üben den Umgang mit Dateien und Dateiattributen.
+* Sie verstehen Zeichensätze und können Sie anwenden.
+* Sie beherrschen den Unterschied zwischen Byte- und Character-orientierten Streams.
+* Sie können Inhalte aus Dateien lesen und schreiben.
+* Sie können das Java Logger Framework anwenden.
+
+=== Voraussetzungen
+* Vorlesung Input/Output 1 und 2
+
+=== Tooling
+
+* Installiertes JDK 11
+* Gradle 6.1
+
+=== Struktur
+
+Das Praktikum enthält verschiedene Arten von Aufgaben, die wie folgt gekennzeichnet sind:
+
+[TU] – Theoretische Übung::
+Dient der Repetition bzw. Vertiefung des Stoffes aus der Vorlesung und als Vorbereitung für die nachfolgenden Übungen.
+
+[PU] – Praktische Übung::
+Übungsaufgaben zur praktischen Vertiefung von Teilaspekten des behandelten Themas.
+
+[PA] – Pflichtaufgabe::
+Übergreifende Aufgabe zum Abschluss. Das Lösen dieser Aufgaben ist Pflicht. Sie muss bis zum definierten Zeitpunkt abgegeben werden, wird bewertet und ist Teil der Vornote.
+
+=== Zeit und Bewertung
+
+Für das Praktikum stehen 2 Woche in den Praktikumslektionen und im Selbststudium zur Verfügung. +
+Je nach Kenntniss- und Erfahrungsstufe benötigen Sie mehr oder
+weniger Zeit.
+Nutzen Sie die Gelegenheit, den Stoff zu vertiefen, auszuprobieren, Fragen zu stellen und Lösungen zu diskutieren (Intensive-Track). +
+Falls Sie das Thema schon beherrschen, müssen Sie nur die Pflichtaufgaben lösen und bis zum angegebenen Zeitpunkt abgeben (Fast-Track).
+
+=== Referenzen
+// references
+* link:{handout}[Praktkikumsverzeichnis – Quellcode, Projektstruktur]
+
+
+:sectnums:
+:sectnumlevels: 2
+// Beginn des Aufgabenblocks
+
+== Dateien und Attribute [PU]
+
+Im Praktikumsverzeichnis finden Sie das Projekt `FileAttributes`. Hier soll das Lesen von Dateien und Dateiattributen geübt werden.
+
+Der Klasse `DirList` kann beim Starten ein Dateipfad übergeben werden.
+Falls  der übergebene Pfad eine Datei ist, sollen die Attribute der Datei in einer Zeile ausgegeben werden.
+Falls es sich um ein Verzeichnis handelt, sollen die Attribute aller Dateien dieses Verzeichnisses zeilenweise ausgegeben werden.
+
+Beispiel:
+----
+> java ch.zhaw.prog2.io.DirList .
+frw-h 2020-02-24 16:49:57      630 .editorconfig
+drwx- 2020-02-24 16:49:57       96 gradle
+frw-- 2020-04-23 06:53:39     6392 README.adoc
+frwx- 2020-02-24 16:49:57     5764 gradlew
+...
+----
+
+Im ersten Block haben die Spalten folgende Bedeutung:
+
+* Typ (File: `f` oder Directory: `d`),
+* Leserecht (Read: `r` oder `-` falls nicht)
+* Schreibrecht (Write: `w` oder `-` falls nicht)
+* Ausführrecht (Execute: `x` oder `-` falls nicht)
+* Versteckte Datei (Hidden: `h` oder `-` falls nicht)
+
+Die nachfolgenden Blöcke enthalten:
+
+* Datum und Uhrzeit der letzten Änderung
+* Grösse der Datei in Bytes
+* Name der Datei
+
+Falls die übergebene Datei nicht existiert, soll eine Fehlermeldung ausgegeben werden.
+
+Was bedeuteten die Attribute Lesen (`r`), Schreiben (`r`) und Ausführen (`x`) bei einem Verzeichnis?
+
+== Verstehen von Zeichensätzen [PU]
+
+In der Vorlesung haben Sie gelernt, dass Java Unicode zum Speichern von Zeichen (Character) verwendet.
+Nun ist Unicode aber nicht der einzige Zeichensatz und Java unterstützt durchaus
+Alternativen zum Lesen und Schreiben.
+Welche Zeichensätze auf einem System konkret unterstützt werden hängt von der Konfiguration des Betriebssystems und der JVM ab.
+
+Im Praktikumsverzeichnis finden Sie das Projekt `Charsets`.
+
+[loweralpha]
+. Ergänzen Sie in der Klasse `UnderstandingCharsets` den Code, um alle von der JVM unterstützten Zeichensätze auf der Konsole (System.out), sowie den für Ihr System definierten Standardzeichensatz auszugeben. +
+https://docs.oracle.com/javase/8/docs/api/java/nio/charset/Charset.html
+
+. Ergänzen Sie die Klasse so, dass sie einzelne Zeichen (also Zeichen für Zeichen) im Standardzeichensatz von der Konsole einliest und im Zeichensatz `US-ASCII` in eine Datei schreibt.
+* Die Eingabe des Zeichens `q` soll das Program ordentlich beenden.
+* Die Datei soll `CharSetEvaluation.txt` genannt werden und wird entweder erzeugt
+oder wenn Sie bereits existiert, einfach geöffnet und der Inhalt übeschrieben.
+* Testen Sie Ihr Program mit den folgenden Eingabereihenfolge und Zeichen: a b c d € f g q
+* Öffnen Sie die Textdatei nach Ausführung des Programs mit einem Texteditor
+und erklären Sie das Ergebnis.
+* Öffnen Sie die Datei anschliessend mit einem HEX-Editor und vergleichen Sie.
+
+== Byte- vs. Zeichenorientierte Streams [PU]
+Im Unterricht haben Sie zwei Typen von IO-Streams kennengelernt; Byte- und Zeichenorientierte-Streams.
+In dieser Übung soll deren Verwendung geübt und analysiert werden was passiert, wenn der falsche Typ verwendet wird.
+
+Im Praktikumsverzeichnis finden Sie das Projekt `ByteCharStream`, welches unter anderem das Verzeichnis `files` mit den Dateien `rmz450.jpg` und `rmz450-spec.txt`.
+Ergänzen Sie die Klasse `FileCopy` mit folgenden Funktionen.
+
+[loweralpha]
+. Verzeichnis-Struktur sicherstellen
+* Das Quell-Verzeichnis soll als Konsolenargument übergeben und auf Korrektheit
+überprüft werden.
+* Korrekt bedeutet, dass das Verzeichnis existiert und ausser zwei Dateien mit den Namen
+`rmz450.jpg` und `rmz450-spec.txt` nichts weiter enthält.
+
+. Dateien kopieren
+- Jede dieser Dateien soll zweimal kopiert werden, einmal zeichen- und einmal byte-orientiert.
+- Dazu soll die jeweilige Datei geöffnet und Element für Element von der Originaldatei gelesen und in die Zieldatei geschrieben werden.
+- Die Kopien sollen so benannt werden, dass aus dem Dateinamen hervorgeht, mit welcher
+Methode sie erstellt wurde.
+
+. Öffnen Sie die Kopien anschliessend mit einem entsprechenden Programm und erklären
+Sie die entsprechenden Effekte.
+
+. Öffnen Sie die Kopien anschliessend mit einem HEX-Editor und erklären Sie die Gründe
+für die Effekte.
+
+== Picture File Datasource [PA]
+
+In Anwendungen will man oft die Anwendungslogik von der Datenhaltung (Persistenzschicht) abstrahieren, in dem ein technologieunabhängiges Interface zum Schreiben und Lesen der Daten verwendet wird.
+Dies ermöglicht den Wechsel zwischen verschiedenen Speichertechnologien (Datenbank, Dateien, Netzwerkserver, ...), ohne dass die Anwendungslogik angepasst werden muss.
+
+In der Übung `PictureDB` verwenden wir ein unabhängiges Interface `PictureDatasource` zum speichern und lesen von Bildinformationen (Klasse `Picture`).
+`PictureDatasource` enthält Methoden um auf eine Datenquelle zuzugreifen, die Bildinformationen speichert.
+[source, Java]
+----
+public interface PictureDatasource {
+    // inherited from GenericDatasource<T>
+    public void insert(Picture picture);
+    public void update(Picture picture) throws RecordNotFoundException;
+    public void delete(Picture picture) throws RecordNotFoundException;
+    public int count();
+    public Picture findById(int id);
+    public Collection<Picture> findAll();
+
+    // extended finder method for looking up picture records
+    public Collection<Picture>findByPosition(float longitude, float latitude, float deviation);
+}
+----
+[NOTE]
+====
+`PictureDataSource` erweitert das generische Interface `GenericDatasource` welches die Methoden enthält, die für alle Recordtypen gleiche sind.
+====
+Anhand der Methoden ist nicht ersichtlich, wie diese Informationen gespeichert werden. Es können somit unterschiedliche Implementationen für unterschiedliche Datenquellen implementiert werden (z.B. diverse Datenbanktypen SQL/No-SQL, Dateien, ...).
+
+Ziel dieser Aufgabe ist es die Klasse `FilePictureDatasource` zu erstellen, welche Records von Bildinformationen der Klasse `Picture` in einer Datei verwaltet.
+
+In der Datendatei (`db/picture-data.csv`) sollen die  Records für die Pictures im _Character Separated Value_ Format (CSV) gespeichert werden.
+
+Das heisst jede Zeile enthält einen Record, dessen Felder mit einem Trennzeichen (`DELIMITER`), in unserem Fall der Strichpunkt (`;`), getrennt sind.
+
+Damit die Records mit den Bildinformationen eindeutig identifiziert werden können muss jeder Eintrag eine eindeutige Identifikation (`id`) besitzen, der sich auch sobald gespeichert nicht mer ändern darf.
+Die `id` wird beim ersten Speichern in die Datasource von dieser bestimmt und im Record-Objekt gesetzt.
+Da jeder Record diese Anforderung hat, wurde dies in der abstrakten Klasse `Record` implementiert, von welcher `Picture` abgeleitet ist.
+
+
+[loweralpha]
+. Studieren Sie abgegebenen generischen und abstrakten Klassen, sowie die Klasse `Picture`, die bereits komplett implementiert ist.
+. Überlegen Sie sich, wie die einzelnen Operationen (insert, update, delete, ...) umgesetzt werden können, wenn sie mit zeilenweisen Records in einem File arbeiten:
+* Wie kann bei einem Insert die nächste noch nicht verwendete `id` festgestellt werden?
+** evtl. wird von verschiedenen Stellen auf die Datei zugegriffen. Sie können Sich also nicht auf eine statische variable verlassen
+** zudem können beim Löschen von Records Lücken bei den id's entstehen
+** es muss nicht mal sein, dass der Record mit der grössten id am Ende steht.
+* Wie aktualisieren sie eine einzelne Zeile bei einem Update?
+* Wie entfernen Sie eine ganze Zeile bei einem Delete?
++
+[IMPORTANT]
+====
+Die Lösung muss mit einer minimalen, deterministischen Menge Speicher auskommen, d.h. Sie können nicht einfach die ganze Datei in den Speicher laden, da die Datei sehr gross ein könnte.
+====
+
+. Implementieren sie die Methoden der Klasse `FilePictureDatasource`
+. Testen Sie ihre Implementation mit Hilfe der Klasse `PictureImport` in welcher Bildinformationen von der Konsole abgefragt, als Picture-Record gespeichert und wieder ausgelesen werden.
+. Schreiben Sie die Testklasse `FilePictureDatasourceTest`, in welcher Sie Tests für die verschiedenen Methoden implementieren. Für jede modifizierende Methode muss mindestens ein positiver und ein negativer Test geschrieben werden.
+. Ergänzen Sie die Klasse `FilePictureDatasource` mit Logger-Meldungen.
+* Verwenden sie verschiedene Level von Log-Meldungen  (INFO, WARNING, SEVERE, FINE,..) z.B.
+** Statusmeldungen → INFO (Record saved)
+** Fehlermeldungen → WARNING oder SEVERE (Failed to save record)
+** Debugmeldungen  → FINE, FINER (New id=..., File opened/closed/copied/deleted)
+* Auf der Konsole sollen Meldungen des Levels INFO und höher ausgegeben werden.
+* In eine zusätzliche Log-Datei `picturedb.log` sollen alle Meldungen (inkl. FINE, FINER) zeilenweise ausgegeben werden.
+
+
+// Ende des Aufgabenblocks
+:!sectnums:
+== Abschluss
+Stellen Sie sicher, dass die Tests der Pflichtaufgabe mittels `gradle test` gestartet werden können und pushen Sie die Lösung vor der Deadline in ihr Abgaberepository.
